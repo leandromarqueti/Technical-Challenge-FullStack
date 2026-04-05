@@ -32,8 +32,10 @@ export const Login: React.FC = () => {
     try {
       await login(data.email, data.password);
       navigate('/dashboard');
-    } catch {
-      setError('E-mail ou senha inválidos. Verifique suas credenciais.');
+    } catch (err: any) {
+      const data = err.response?.data;
+      const msg = data?.message || data?.Message || 'E-mail ou senha inválidos. Verifique suas credenciais.';
+      setError(msg);
     } finally {
       setLoading(false);
     }

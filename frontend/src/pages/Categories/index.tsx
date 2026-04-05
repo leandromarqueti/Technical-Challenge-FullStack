@@ -6,7 +6,8 @@ import styles from './styles.module.css';
 
 interface Category {
   id: string;
-  name: string;
+  description: string;
+  purpose: number | string; // 0 = Revenue, 1 = Expense, 2 = Both
 }
 
 export const Categories: React.FC = () => {
@@ -14,7 +15,8 @@ export const Categories: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [purpose, setPurpose] = useState<number>(2);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,10 +39,12 @@ export const Categories: React.FC = () => {
   const handleOpenModal = (category?: Category) => {
     if (category) {
       setEditingCategory(category);
-      setName(category.name);
+      setDescription(category.description);
+      setPurpose(category.purpose === 'Revenue' ? 0 : (category.purpose === 'Expense' ? 1 : (category.purpose === 'Both' ? 2 : Number(category.purpose))));
     } else {
       setEditingCategory(null);
-      setName('');
+      setDescription('');
+      setPurpose(2);
     }
     setError(null);
     setIsModalOpen(true);
@@ -48,16 +52,17 @@ export const Categories: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!description.trim()) return;
 
     setSubmitting(true);
     setError(null);
 
     try {
+      const payload = { description, purpose };
       if (editingCategory) {
-        await api.put(`/categories/${editingCategory.id}`, { name });
+        await api.put(`/categories/${editingCategory.id}`, payload);
       } else {
-        await api.post('/categories', { name });
+        await api.post('/categories', payload);
       }
       setIsModalOpen(false);
       fetchCategories();
@@ -102,7 +107,8 @@ export const Categories: React.FC = () => {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Nome</th>
+                <th>Descrição</th>
+                <th>Finalidade</th>
                 <th style={{ width: '120px' }}>Ações</th>
               </tr>
             </thead>
@@ -116,7 +122,12 @@ export const Categories: React.FC = () => {
               ) : (
                 categories.map(category => (
                   <tr key={category.id}>
-                    <td>{category.name}</td>
+                    <td>{category.description}</td>
+                    <td>
+                      <span className={`${styles.badge} ${(category.purpose === 0 || category.purpose === 'Revenue') ? styles.revenue : (category.purpose === 1 || category.purpose === 'Expense') ? styles.expense : styles.both}`}>
+                        {(category.purpose === 0 || category.purpose === 'Revenue') ? 'Receitas' : (category.purpose === 1 || category.purpose === 'Expense') ? 'Despesas' : 'Ambas'}
+                      </span>
+                    </td>
                     <td className={styles.actions}>
                       <button onClick={() => handleOpenModal(category)} className={styles.editBtn}>
                         <Pencil size={18} />
@@ -133,23 +144,38 @@ export const Categories: React.FC = () => {
         </div>
       )}
 
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         title={editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
       >
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className="input-group">
-            <label>Nome da Categoria</label>
-            <input 
-              type="text" 
-              value={name} 
-              onChange={e => setName(e.target.value)} 
+            <label>Descrição</label>
+            <input
+              type="text"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
               placeholder="Ex: Alimentação, Salário..."
+              maxLength={400}
               autoFocus
+              required
             />
           </div>
-          
+
+          <div className="input-group">
+            <label>Finalidade</label>
+            <select
+              value={purpose}
+              onChange={e => setPurpose(Number(e.target.value))}
+              className={styles.select}
+            >
+              <option value={0}>Apenas Receitas</option>
+              <option value={1}>Apenas Despesas</option>
+              <option value={2}>Ambas (Receitas e Despesas)</option>
+            </select>
+          </div>
+
           {error && <p className={styles.error}>{error}</p>}
 
           <div className={styles.modalActions}>

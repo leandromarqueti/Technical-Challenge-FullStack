@@ -30,7 +30,12 @@ export const Persons: React.FC = () => {
   const fetchPersons = async () => {
     try {
       const response = await api.get('/persons');
-      setPersons(response.data.data || []);
+      const data = response.data;
+      console.log('Dados recebidos da API /persons:', data);
+      
+      //Tentar diferentes formatos de resposta
+      const list = data?.data || data?.Data || (Array.isArray(data) ? data : []);
+      setPersons(list);
     } catch (err) {
       console.error('Erro ao buscar pessoas:', err);
     } finally {
@@ -72,8 +77,16 @@ export const Persons: React.FC = () => {
       setIsModalOpen(false);
       fetchPersons();
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Erro ao salvar pessoa. Verifique o documento.';
-      setError(msg);
+      const data = err.response?.data;
+      const msg = data?.message || data?.Message || 'Erro ao salvar pessoa. Verifique o documento.';
+      const errors = data?.errors || data?.Errors;
+      
+      if (errors) {
+        const errorList = Object.values(errors).flat().join(' ');
+        setError(`${msg} ${errorList}`);
+      } else {
+        setError(msg);
+      }
     } finally {
       setSubmitting(false);
     }

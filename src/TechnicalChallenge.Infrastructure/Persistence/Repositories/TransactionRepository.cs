@@ -14,12 +14,12 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
         _appContext = context;
     }
 
-    public async Task<Transaction?> GetByIdWithRelationsAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Transaction?> GetByIdWithRelationsAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
     {
         return await _appContext.Transactions
             .Include(t => t.Category)
             .Include(t => t.Person)
-            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId, cancellationToken);
     }
 
     public async Task<(IReadOnlyList<Transaction> Items, int TotalCount)> GetFilteredAsync(
@@ -29,6 +29,7 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
         Guid? categoryId,
         Guid? personId,
         TransactionType? type,
+        Guid userId,
         int pageNumber,
         int pageSize,
         string? sortBy,
@@ -38,6 +39,7 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
         var query = _appContext.Transactions
             .Include(t => t.Category)
             .Include(t => t.Person)
+            .Where(t => t.UserId == userId)
             .AsQueryable();
 
         //Aplicar filtros
@@ -87,18 +89,58 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
         return (items, totalCount);
     }
 
-    public async Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken = default)
+    public async Task<decimal> GetTotalRevenueAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await _appContext.Transactions
-            .Where(t => t.Type == TransactionType.Revenue)
-            .SumAsync(t => t.Amount, cancellationToken);
+        var total = await _appContext.Transactions
+            .Where(t => t.UserId == userId && t.Type == TransactionType.Revenue)
+            .Select(t => (double)t.Amount)
+            .SumAsync(cancellationToken);
+
+        return (decimal)total;
     }
 
-    public async Task<decimal> GetTotalExpensesAsync(CancellationToken cancellationToken = default)
+    public async Task<decimal> GetTotalExpensesAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await _appContext.Transactions
-            .Where(t => t.Type == TransactionType.Expense)
-            .SumAsync(t => t.Amount, cancellationToken);
+        var total = await _appContext.Transactions
+            .Where(t => t.UserId == userId && t.Type == TransactionType.Expense)
+            .Select(t => (double)t.Amount)
+            .SumAsync(cancellationToken);
+
+        return (decimal)total;
+    }
+
+    public async Task<IEnumerable<(string Name, decimal TotalRevenue, decimal TotalExpenses)>> GetTotalsByPersonAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var totals = await _appContext.Transactions
+            .Include(t => t.Person)
+            .Where(t => t.UserId == userId)
+            .GroupBy(t => new { t.PersonId, t.Person!.Name })
+            .Select(g => new
+            {
+                Name = g.Key.Name ?? "N/A",
+                TotalRevenue = (decimal)g.Where(x => x.Type == TransactionType.Revenue).Sum(x => (double)x.Amount),
+                TotalExpenses = (decimal)g.Where(x => x.Type == TransactionType.Expense).Sum(x => (double)x.Amount)
+            })
+            .ToListAsync(cancellationToken);
+
+        return totals.Select(t => (t.Name, t.TotalRevenue, t.TotalExpenses));
+    }
+
+    public async Task<IEnumerable<(string Name, decimal TotalRevenue, decimal TotalExpenses)>> GetTotalsByCategoryAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var totals = await _appContext.Transactions
+            .Include(t => t.Category)
+            .Where(t => t.UserId == userId)
+            .GroupBy(t => new { t.CategoryId, t.Category!.Description })
+            .Select(g => new
+            {
+                Name = g.Key.Description ?? "N/A",
+                TotalRevenue = (decimal)g.Where(x => x.Type == TransactionType.Revenue).Sum(x => (double)x.Amount),
+                TotalExpenses = (decimal)g.Where(x => x.Type == TransactionType.Expense).Sum(x => (double)x.Amount)
+            })
+            .ToListAsync(cancellationToken);
+
+        return totals.Select(t => (t.Name, t.TotalRevenue, t.TotalExpenses));
     }
 
     private static IQueryable<Transaction> ApplySorting(
@@ -120,8 +162,8 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
                 ? query.OrderByDescending(t => t.Type)
                 : query.OrderBy(t => t.Type),
             "category" => sortDescending
-                ? query.OrderByDescending(t => t.Category!.Name)
-                : query.OrderBy(t => t.Category!.Name),
+                ? query.OrderByDescending(t => t.Category!.Description)
+                : query.OrderBy(t => t.Category!.Description),
             "person" => sortDescending
                 ? query.OrderByDescending(t => t.Person!.Name)
                 : query.OrderBy(t => t.Person!.Name),

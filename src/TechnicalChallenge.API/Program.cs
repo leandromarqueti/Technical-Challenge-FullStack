@@ -23,12 +23,12 @@ builder.Services.AddSwaggerConfiguration();
 builder.Services.AddExceptionHandler<ExceptionHandlingMiddleware>();
 builder.Services.AddProblemDetails();
 
-//cors aberto pra dev - ajustar em prod
+//cors (restrito como em produção, permitindo a porta do Client do desafio)
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("ProductionPolicy", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://localhost:5173", "https://seusistema.com.br")
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
@@ -36,19 +36,20 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-//garante que o banco sqlite seja criado na primeira vez
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<TechnicalChallenge.Infrastructure.Persistence.AppDbContext>();
-    context.Database.EnsureCreated();
-}
+//garante que o banco sqlite seja criado na primeira vez através da Infra
+app.Services.InitializeDatabase();
 
 //pipeline
 app.UseMiddleware<CultureMiddleware>();
 app.UseSwaggerConfiguration();
-app.UseCors("AllowAll");
-app.UseExceptionHandler();
+app.UseCors("ProductionPolicy");
+
+//HSTS e redirecionamento HTTPS ativo
+//Pode ser necessário aceitar os certificados locais do .NET caso acuse erro SSL
+app.UseHsts();
 app.UseHttpsRedirection();
+
+app.UseExceptionHandler();
 app.UseAuthentication();
 app.UseAuthorization();
 

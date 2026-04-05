@@ -1,36 +1,41 @@
 using TechnicalChallenge.Domain.Common;
+using TechnicalChallenge.Domain.Enums;
 using TechnicalChallenge.Shared.Exceptions;
 
 namespace TechnicalChallenge.Domain.Entities;
 
 public class Category : AggregateRoot
 {
-    public string Name { get; private set; } = string.Empty;
+    public string Description { get; private set; } = string.Empty;
+
+    public CategoryPurpose Purpose { get; private set; }
 
     public ICollection<Transaction> Transactions { get; private set; } = new List<Transaction>();
 
     //EF Core
     private Category() { }
 
-    public Category(string name)
+    public Category(string description, CategoryPurpose purpose = CategoryPurpose.Both)
     {
-        SetName(name);
+        SetDescription(description);
+        Purpose = purpose;
     }
 
-    public void Update(string name)
+    public void Update(string description, CategoryPurpose purpose)
     {
-        SetName(name);
+        SetDescription(description);
+        Purpose = purpose;
         UpdateTimestamp();
     }
 
-    private void SetName(string name)
+    private void SetDescription(string description)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException("O nome da categoria é obrigatório.");
+        if (string.IsNullOrWhiteSpace(description))
+            throw new DomainException("A descrição da categoria é obrigatória.");
 
-        if (name.Length > 200)
-            throw new DomainException("O nome da categoria deve ter no máximo 200 caracteres.");
+        if (description.Length > 400)
+            throw new DomainException("A descrição da categoria deve ter no máximo 400 caracteres.");
 
-        Name = name.Trim();
+        Description = description.Trim();
     }
 }

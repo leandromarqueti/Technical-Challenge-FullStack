@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.Extensions.Logging;
 using TechnicalChallenge.Shared.Exceptions;
 using System.Net;
 using System.Text.Json;
@@ -61,7 +62,7 @@ public class ExceptionHandlingMiddleware : IExceptionHandler
                 errorResponse = new ErrorResponse
                 {
                     StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = "An unexpected error occurred. Please try again later."
+                    Message = $"Erro Interno: {exception.Message}"
                 };
                 break;
         }

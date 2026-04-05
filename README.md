@@ -78,6 +78,8 @@ Na primeira execução o banco SQLite ('technical-challenge.db') é criado autom
 
 Swagger disponível em: 'https://localhost:63272/swagger/index.html'
 
+Health Check disponível em: 'https://localhost:63272/api/health'
+
 -Frontend
 
 ```bash
@@ -115,4 +117,4 @@ Authorization: Bearer <token>
 As mensagens de erro da API respondem no idioma do header 'Accept-Language'.
 O frontend envia esse header automaticamente com base no idioma selecionado pelo usuário.
 
-Disponível: 'pt-BR', 'en-US', 'es-ES'
+Disponível: 'pt-BR', 'en-US' e 'es-ES'

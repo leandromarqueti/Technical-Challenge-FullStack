@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TechnicalChallenge.Application.UseCases.Auth.Commands.Login;
 using TechnicalChallenge.Application.UseCases.Auth.Commands.Register;
@@ -8,6 +9,7 @@ namespace TechnicalChallenge.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[AllowAnonymous]
 public class AuthController : ControllerBase
 {
     private readonly IMediator _mediator;

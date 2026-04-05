@@ -12,15 +12,20 @@ public interface ITransactionRepository : IRepository<Transaction>
         Guid? categoryId,
         Guid? personId,
         TransactionType? type,
+        Guid userId,
         int pageNumber,
         int pageSize,
         string? sortBy,
         bool sortDescending,
         CancellationToken cancellationToken = default);
 
-    Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken = default);
+    Task<decimal> GetTotalRevenueAsync(Guid userId, CancellationToken cancellationToken = default);
 
-    Task<decimal> GetTotalExpensesAsync(CancellationToken cancellationToken = default);
+    Task<decimal> GetTotalExpensesAsync(Guid userId, CancellationToken cancellationToken = default);
+    
+    Task<IEnumerable<(string Name, decimal TotalRevenue, decimal TotalExpenses)>> GetTotalsByPersonAsync(Guid userId, CancellationToken cancellationToken = default);
+    
+    Task<IEnumerable<(string Name, decimal TotalRevenue, decimal TotalExpenses)>> GetTotalsByCategoryAsync(Guid userId, CancellationToken cancellationToken = default);
 
-    Task<Transaction?> GetByIdWithRelationsAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Transaction?> GetByIdWithRelationsAsync(Guid id, Guid userId, CancellationToken cancellationToken = default);
 }

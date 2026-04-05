@@ -24,13 +24,6 @@ public class DeletePersonCommandHandler : IRequestHandler<DeletePersonCommand, R
             throw new NotFoundException("Pessoa", request.Id);
         }
 
-        //Verifica se a pessoa tem transações vinculadas
-        var hasTransactions = await _personRepository.HasTransactionsAsync(request.Id, cancellationToken);
-        if (hasTransactions)
-        {
-            return Result<bool>.Failure(ResourceErrorMessages.CANNOT_DELETE_PERSON_WITH_TRANSACTIONS);
-        }
-
         await _personRepository.DeleteAsync(person, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -10,10 +10,10 @@ public class CategoryRepository : Repository<Category>, ICategoryRepository
     {
     }
 
-    public async Task<Category?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+    public async Task<Category?> GetByDescriptionAsync(string description, CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower(), cancellationToken);
+            .FirstOrDefaultAsync(c => c.Description.ToLower() == description.ToLower(), cancellationToken);
     }
 
     public async Task<bool> HasTransactionsAsync(Guid categoryId, CancellationToken cancellationToken = default)

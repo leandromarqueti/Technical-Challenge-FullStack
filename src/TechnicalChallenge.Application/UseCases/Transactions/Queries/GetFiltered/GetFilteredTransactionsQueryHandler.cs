@@ -30,6 +30,7 @@ public class GetFilteredTransactionsQueryHandler
             request.CategoryId,
             request.PersonId,
             request.Type,
+            request.UserId,
             request.PageNumber,
             request.PageSize,
             request.SortBy,

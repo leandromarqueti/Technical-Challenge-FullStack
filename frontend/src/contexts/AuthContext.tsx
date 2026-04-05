@@ -34,18 +34,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     const { data } = await api.post('/auth/login', { email, password });
-    
-    localStorage.setItem('@App:token', data.token);
-    const userData = { name: data.name, email: data.email };
+    //A API retorna Result<T>, então o payload real está em data.data
+    const payload = data.data ?? data;
+    localStorage.setItem('@App:token', payload.token);
+    const userData = { name: payload.name, email: payload.email };
     setUser(userData);
     localStorage.setItem('@App:user', JSON.stringify(userData));
   };
 
   const register = async (name: string, email: string, password: string) => {
     const { data } = await api.post('/auth/register', { name, email, password });
-    
-    localStorage.setItem('@App:token', data.token);
-    const userData = { name: data.name, email: data.email };
+    const payload = data.data ?? data;
+    localStorage.setItem('@App:token', payload.token);
+    const userData = { name: payload.name, email: payload.email };
     setUser(userData);
     localStorage.setItem('@App:user', JSON.stringify(userData));
   };

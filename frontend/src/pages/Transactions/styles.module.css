@@ -3,6 +3,73 @@
   width: 100%;
 }
 
+/* ── Barra de Filtro + Totais ── */
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.filterSelect {
+  padding: 0.45rem 0.8rem;
+  border-radius: 8px;
+  background-color: rgba(255,255,255,0.06);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.filterSelect option {
+  background-color: var(--card-bg);
+}
+
+.clearBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  padding: 0.3rem;
+  border-radius: 50%;
+  transition: color 0.2s;
+}
+.clearBtn:hover { color: var(--error-color); }
+
+.totalsBar {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.totalLabel {
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-right: 0.2rem;
+}
+
+.totalRevenue  { color: var(--success-color); }
+.totalExpense  { color: var(--error-color); }
+.totalBalancePos { color: var(--success-color); border-left: 1px solid var(--border-color); padding-left: 1.2rem; }
+.totalBalanceNeg { color: var(--error-color);   border-left: 1px solid var(--border-color); padding-left: 1.2rem; }
+
 .header {
   display: flex;
   justify-content: space-between;

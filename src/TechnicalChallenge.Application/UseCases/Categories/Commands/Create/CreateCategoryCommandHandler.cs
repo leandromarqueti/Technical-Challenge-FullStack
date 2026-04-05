@@ -18,14 +18,14 @@ public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComman
 
     public async Task<Result<Guid>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
-        //Verifica se já existe categoria com o mesmo nome
-        var existing = await _categoryRepository.GetByNameAsync(request.Name, cancellationToken);
+        //Verifica se já existe categoria com a mesma descrição
+        var existing = await _categoryRepository.GetByDescriptionAsync(request.Description, cancellationToken);
         if (existing is not null)
         {
-            return Result<Guid>.Failure("Já existe uma categoria com este nome.");
+            return Result<Guid>.Failure("Já existe uma categoria com esta descrição.");
         }
 
-        var category = new Category(request.Name);
+        var category = new Category(request.Description, request.Purpose);
 
         await _categoryRepository.AddAsync(category, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

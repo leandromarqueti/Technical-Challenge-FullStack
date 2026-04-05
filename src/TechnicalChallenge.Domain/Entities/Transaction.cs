@@ -15,12 +15,10 @@ public class Transaction : AggregateRoot
     public TransactionType Type { get; private set; }
 
     public Guid CategoryId { get; private set; }
-
     public Category? Category { get; private set; }
-
     public Guid PersonId { get; private set; }
-
     public Person? Person { get; private set; }
+    public Guid UserId { get; private set; }
 
     //EF Core
     private Transaction() { }
@@ -31,9 +29,10 @@ public class Transaction : AggregateRoot
         DateTime date,
         TransactionType type,
         Guid categoryId,
-        Guid personId)
+        Guid personId,
+        Guid userId)
     {
-        ValidateAndSet(description, amount, date, type, categoryId, personId);
+        ValidateAndSet(description, amount, date, type, categoryId, personId, userId);
     }
 
     public void Update(
@@ -42,9 +41,10 @@ public class Transaction : AggregateRoot
         DateTime date,
         TransactionType type,
         Guid categoryId,
-        Guid personId)
+        Guid personId,
+        Guid userId)
     {
-        ValidateAndSet(description, amount, date, type, categoryId, personId);
+        ValidateAndSet(description, amount, date, type, categoryId, personId, userId);
         UpdateTimestamp();
     }
 
@@ -54,7 +54,8 @@ public class Transaction : AggregateRoot
         DateTime date,
         TransactionType type,
         Guid categoryId,
-        Guid personId)
+        Guid personId,
+        Guid userId)
     {
         if (string.IsNullOrWhiteSpace(description))
             throw new DomainException("A descrição da transação é obrigatória.");
@@ -74,11 +75,15 @@ public class Transaction : AggregateRoot
         if (personId == Guid.Empty)
             throw new DomainException("A pessoa é obrigatória.");
 
+        if (userId == Guid.Empty)
+            throw new DomainException("O usuário é obrigatório.");
+
         Description = description.Trim();
         Amount = amount;
         Date = date;
         Type = type;
         CategoryId = categoryId;
         PersonId = personId;
+        UserId = userId;
     }
 }

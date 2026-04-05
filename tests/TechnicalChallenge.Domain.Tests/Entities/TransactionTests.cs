@@ -21,7 +21,8 @@ public class TransactionTests
             date: DateTime.UtcNow,
             type: TransactionType.Expense,
             categoryId: Guid.NewGuid(),
-            personId: Guid.NewGuid()
+            personId: Guid.NewGuid(),
+            userId: Guid.NewGuid()
         );
 
         //Assert
@@ -39,7 +40,8 @@ public class TransactionTests
             date: DateTime.UtcNow,
             type: TransactionType.Expense,
             categoryId: Guid.NewGuid(),
-            personId: Guid.NewGuid()
+            personId: Guid.NewGuid(),
+            userId: Guid.NewGuid()
         );
 
         //Assert

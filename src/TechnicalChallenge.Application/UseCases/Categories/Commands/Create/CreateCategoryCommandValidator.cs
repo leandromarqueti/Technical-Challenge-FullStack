@@ -6,8 +6,11 @@ public class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryCo
 {
     public CreateCategoryCommandValidator()
     {
-        RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("O nome da categoria é obrigatório.")
-            .MaximumLength(200).WithMessage("O nome da categoria deve ter no máximo 200 caracteres.");
+        RuleFor(x => x.Description)
+            .NotEmpty().WithMessage("A descrição da categoria é obrigatória.")
+            .MaximumLength(400).WithMessage("A descrição da categoria deve ter no máximo 400 caracteres.");
+
+        RuleFor(x => x.Purpose)
+            .IsInEnum().WithMessage("Finalidade da categoria inválida.");
     }
 }

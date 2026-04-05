@@ -51,4 +51,11 @@ public static class DependencyInjection
 
         return services;
     }
+
+    public static void InitializeDatabase(this IServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        context.Database.EnsureCreated();
+    }
 }

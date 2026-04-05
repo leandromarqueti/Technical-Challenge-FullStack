@@ -32,6 +32,9 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
 
         builder.Property(t => t.UpdatedAt);
 
+        builder.Property(t => t.UserId)
+            .IsRequired();
+
         //Relacionamento com Category
         builder.HasOne(t => t.Category)
             .WithMany(c => c.Transactions)
@@ -42,12 +45,13 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
         builder.HasOne(t => t.Person)
             .WithMany(p => p.Transactions)
             .HasForeignKey(t => t.PersonId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         //Índices para otimizar consultas de filtro
         builder.HasIndex(t => t.Date);
         builder.HasIndex(t => t.Type);
         builder.HasIndex(t => t.CategoryId);
         builder.HasIndex(t => t.PersonId);
+        builder.HasIndex(t => t.UserId);
     }
 }

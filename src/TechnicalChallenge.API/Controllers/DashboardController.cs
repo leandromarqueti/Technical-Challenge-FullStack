@@ -2,11 +2,12 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TechnicalChallenge.Application.UseCases.Dashboard.Queries.GetDashboard;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace TechnicalChallenge.API.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public class DashboardController : ControllerBase
+[Authorize]
+public class DashboardController : BaseApiController
 {
     private readonly IMediator _mediator;
 
@@ -19,7 +20,7 @@ public class DashboardController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDashboard(CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetDashboardQuery(), cancellationToken);
+        var result = await _mediator.Send(new GetDashboardQuery { UserId = UserId }, cancellationToken);
         return Ok(result);
     }
 }

@@ -16,14 +16,31 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Resul
 
     public async Task<Result<DashboardDto>> Handle(GetDashboardQuery request, CancellationToken cancellationToken)
     {
-        var totalRevenue = await _transactionRepository.GetTotalRevenueAsync(cancellationToken);
-        var totalExpenses = await _transactionRepository.GetTotalExpensesAsync(cancellationToken);
+        var totalRevenue = await _transactionRepository.GetTotalRevenueAsync(request.UserId, cancellationToken);
+        var totalExpenses = await _transactionRepository.GetTotalExpensesAsync(request.UserId, cancellationToken);
+        
+        var personTotalsByRepo = await _transactionRepository.GetTotalsByPersonAsync(request.UserId, cancellationToken);
+        var categoryTotalsByRepo = await _transactionRepository.GetTotalsByCategoryAsync(request.UserId, cancellationToken);
 
         var dashboard = new DashboardDto
         {
             TotalRevenue = totalRevenue,
             TotalExpenses = totalExpenses,
-            Balance = totalRevenue - totalExpenses
+            Balance = totalRevenue - totalExpenses,
+            TotalsByPerson = personTotalsByRepo.Select(p => new PersonSummaryDto
+            {
+                Name = p.Name,
+                TotalRevenue = p.TotalRevenue,
+                TotalExpenses = p.TotalExpenses,
+                Balance = p.TotalRevenue - p.TotalExpenses
+            }).ToList(),
+            TotalsByCategory = categoryTotalsByRepo.Select(c => new CategorySummaryDto
+            {
+                Description = c.Name, //O repositório retorna o valor na tupla como Name por padrão
+                TotalRevenue = c.TotalRevenue,
+                TotalExpenses = c.TotalExpenses,
+                Balance = c.TotalRevenue - c.TotalExpenses
+            }).ToList()
         };
 
         return Result<DashboardDto>.Success(dashboard);

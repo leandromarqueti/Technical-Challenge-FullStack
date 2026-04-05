@@ -12,7 +12,7 @@ public class TransactionDto
     public string TypeDescription => Type == TransactionType.Revenue ? "Receita" : "Despesa";
 
     public Guid CategoryId { get; set; }
-    public string CategoryName { get; set; } = string.Empty;
+    public string CategoryDescription { get; set; } = string.Empty;
 
     public Guid PersonId { get; set; }
     public string PersonName { get; set; } = string.Empty;

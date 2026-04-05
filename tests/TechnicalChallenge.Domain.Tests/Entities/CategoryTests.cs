@@ -8,16 +8,16 @@ namespace TechnicalChallenge.Domain.Tests.Entities;
 public class CategoryTests
 {
     [Fact]
-    public void Constructor_WithNameExceeding200Characters_ShouldThrowDomainException()
+    public void Constructor_WithDescriptionExceeding400Characters_ShouldThrowDomainException()
     {
         //Arrange
-        var longName = new string('C', 201);
+        var longDescription = new string('C', 401);
 
         //Act
-        Action action = () => new Category(longName);
+        Action action = () => new Category(longDescription);
 
         //Assert
         action.Should().Throw<DomainException>()
-              .WithMessage("O nome da categoria deve ter no máximo 200 caracteres.");
+              .WithMessage("A descrição da categoria deve ter no máximo 400 caracteres.");
     }
 }

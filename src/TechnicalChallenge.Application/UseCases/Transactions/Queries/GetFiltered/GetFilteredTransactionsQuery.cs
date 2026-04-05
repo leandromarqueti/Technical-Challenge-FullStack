@@ -27,4 +27,6 @@ public class GetFilteredTransactionsQuery : IRequest<Result<PagedResult<Transact
     public string? SortBy { get; set; }
 
     public bool SortDescending { get; set; }
+
+    public Guid UserId { get; set; }
 }

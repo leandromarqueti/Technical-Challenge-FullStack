@@ -1,4 +1,6 @@
 using MediatR;
+using TransactionEntity = TechnicalChallenge.Domain.Entities.Transaction;
+using TechnicalChallenge.Domain.Enums;
 using TechnicalChallenge.Domain.Interfaces;
 using TechnicalChallenge.Shared.Exceptions;
 using TechnicalChallenge.Shared.Results;
@@ -26,24 +28,35 @@ public class UpdateTransactionCommandHandler : IRequestHandler<UpdateTransaction
 
     public async Task<Result<bool>> Handle(UpdateTransactionCommand request, CancellationToken cancellationToken)
     {
-        var transaction = await _transactionRepository.GetByIdAsync(request.Id, cancellationToken);
-        if (transaction is null)
+        TransactionEntity? transaction = await _transactionRepository.GetByIdAsync(request.Id, cancellationToken);
+        if (transaction is null || transaction.UserId != request.UserId)
         {
             throw new NotFoundException("Transação", request.Id);
         }
 
-        //Valida se a categoria existe
-        var categoryExists = await _categoryRepository.ExistsAsync(request.CategoryId, cancellationToken);
-        if (!categoryExists)
+        //Valida se a categoria existe e sua finalidade
+        var category = await _categoryRepository.GetByIdAsync(request.CategoryId, cancellationToken);
+        if (category is null)
         {
             throw new NotFoundException("Categoria", request.CategoryId);
         }
 
         //Valida se a pessoa existe
-        var personExists = await _personRepository.ExistsAsync(request.PersonId, cancellationToken);
-        if (!personExists)
+        var person = await _personRepository.GetByIdAsync(request.PersonId, cancellationToken);
+        if (person is null)
         {
             throw new NotFoundException("Pessoa", request.PersonId);
+        }
+
+        //Regra: Compatibilidade Categoria x Tipo Transação
+        bool isCompatible = category.Purpose == CategoryPurpose.Both || 
+                           (request.Type == TransactionType.Revenue && category.Purpose == CategoryPurpose.Revenue) ||
+                           (request.Type == TransactionType.Expense && category.Purpose == CategoryPurpose.Expense);
+
+        if (!isCompatible)
+        {
+            var purposeStr = category.Purpose == CategoryPurpose.Revenue ? "receitas" : "despesas";
+            return Result<bool>.Failure($"Esta categoria é permitida apenas para {purposeStr}.");
         }
 
         transaction.Update(
@@ -52,7 +65,8 @@ public class UpdateTransactionCommandHandler : IRequestHandler<UpdateTransaction
             request.Date,
             request.Type,
             request.CategoryId,
-            request.PersonId);
+            request.PersonId,
+            request.UserId);
 
         await _transactionRepository.UpdateAsync(transaction, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

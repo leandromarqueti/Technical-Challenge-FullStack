@@ -18,8 +18,8 @@ public class MappingProfile : Profile
 
         //Transaction -> TransactionDto
         CreateMap<Transaction, TransactionDto>()
-            .ForMember(dest => dest.CategoryName,
-                opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
+            .ForMember(dest => dest.CategoryDescription,
+                opt => opt.MapFrom(src => src.Category != null ? src.Category.Description : string.Empty))
             .ForMember(dest => dest.PersonName,
                 opt => opt.MapFrom(src => src.Person != null ? src.Person.Name : string.Empty));
     }

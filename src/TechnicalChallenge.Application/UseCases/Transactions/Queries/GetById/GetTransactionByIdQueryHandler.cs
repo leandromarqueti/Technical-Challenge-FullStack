@@ -1,5 +1,6 @@
 using AutoMapper;
 using MediatR;
+using TransactionEntity = TechnicalChallenge.Domain.Entities.Transaction;
 using TechnicalChallenge.Application.UseCases.Transactions.DTOs;
 using TechnicalChallenge.Domain.Interfaces;
 using TechnicalChallenge.Shared.Exceptions;
@@ -20,9 +21,9 @@ public class GetTransactionByIdQueryHandler : IRequestHandler<GetTransactionById
 
     public async Task<Result<TransactionDto>> Handle(GetTransactionByIdQuery request, CancellationToken cancellationToken)
     {
-        var transaction = await _transactionRepository.GetByIdWithRelationsAsync(request.Id, cancellationToken);
+        TransactionEntity? transaction = await _transactionRepository.GetByIdWithRelationsAsync(request.Id, request.UserId, cancellationToken);
 
-        if (transaction is null)
+        if (transaction is null || transaction.UserId != request.UserId)
         {
             throw new NotFoundException("Transação", request.Id);
         }

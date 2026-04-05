@@ -24,14 +24,14 @@ public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComman
             throw new NotFoundException("Categoria", request.Id);
         }
 
-        //Verifica se o novo nome já está em uso por outra categoria
-        var existing = await _categoryRepository.GetByNameAsync(request.Name, cancellationToken);
+        //Verifica se a nova descrição já está em uso por outra categoria
+        var existing = await _categoryRepository.GetByDescriptionAsync(request.Description, cancellationToken);
         if (existing is not null && existing.Id != request.Id)
         {
-            return Result<bool>.Failure("Já existe outra categoria com este nome.");
+            return Result<bool>.Failure("Já existe outra categoria com esta descrição.");
         }
 
-        category.Update(request.Name);
+        category.Update(request.Description, request.Purpose);
 
         await _categoryRepository.UpdateAsync(category, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

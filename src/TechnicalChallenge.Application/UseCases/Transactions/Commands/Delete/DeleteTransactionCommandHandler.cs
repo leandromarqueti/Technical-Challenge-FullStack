@@ -1,4 +1,5 @@
 using MediatR;
+using TransactionEntity = TechnicalChallenge.Domain.Entities.Transaction;
 using TechnicalChallenge.Domain.Interfaces;
 using TechnicalChallenge.Shared.Exceptions;
 using TechnicalChallenge.Shared.Results;
@@ -18,8 +19,8 @@ public class DeleteTransactionCommandHandler : IRequestHandler<DeleteTransaction
 
     public async Task<Result<bool>> Handle(DeleteTransactionCommand request, CancellationToken cancellationToken)
     {
-        var transaction = await _transactionRepository.GetByIdAsync(request.Id, cancellationToken);
-        if (transaction is null)
+        TransactionEntity? transaction = await _transactionRepository.GetByIdAsync(request.Id, cancellationToken);
+        if (transaction is null || transaction.UserId != request.UserId)
         {
             throw new NotFoundException("Transação", request.Id);
         }

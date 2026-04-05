@@ -3,12 +3,14 @@ namespace TechnicalChallenge.Shared.Results;
 
 public class Result<T>
 {
-    public bool IsSuccess { get; private set; }
-    public T? Data { get; private set; }
-    public string? Message { get; private set; }
-    public IReadOnlyList<string> Errors { get; private set; }
+    public bool IsSuccess { get; set; }
+    public T? Data { get; set; }
+    public string? Message { get; set; }
+    public List<string> Errors { get; set; } = new();
 
-    private Result(bool isSuccess, T? data, string? message, List<string> errors)
+    public Result() { }
+
+    public Result(bool isSuccess, T? data, string? message, List<string> errors)
     {
         IsSuccess = isSuccess;
         Data = data;

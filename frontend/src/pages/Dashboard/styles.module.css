@@ -77,3 +77,53 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.reportsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.reportSection {
+  padding: 1.5rem;
+}
+
+.reportSection h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+  border-left: 4px solid var(--primary-color);
+  padding-left: 1rem;
+}
+
+.reportTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reportTable th {
+  text-align: left;
+  padding: 0.8rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.reportTable td {
+  padding: 1rem 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.95rem;
+}
+
+.reportTable tr:last-child td {
+  border-bottom: none;
+}
+
+@media (max-width: 600px) {
+  .reportsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+

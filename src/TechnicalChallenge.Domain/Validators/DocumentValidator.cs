@@ -90,6 +90,9 @@ public static class DocumentValidator
 
     public static string CleanDocument(string document)
     {
-        return new string(document.Where(char.IsDigit).ToArray());
+        if (string.IsNullOrWhiteSpace(document))
+            return string.Empty;
+
+        return new string(document.Where(char.IsDigit).ToArray()).Trim();
     }
 }

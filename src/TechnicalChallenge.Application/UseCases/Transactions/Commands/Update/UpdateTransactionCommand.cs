@@ -13,4 +13,5 @@ public class UpdateTransactionCommand : IRequest<Result<bool>>
     public TransactionType Type { get; set; }
     public Guid CategoryId { get; set; }
     public Guid PersonId { get; set; }
+    public Guid UserId { get; set; }
 }

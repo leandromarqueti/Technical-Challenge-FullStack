@@ -6,4 +6,5 @@ namespace TechnicalChallenge.Application.UseCases.Dashboard.Queries.GetDashboard
 
 public class GetDashboardQuery : IRequest<Result<DashboardDto>>
 {
+    public Guid UserId { get; set; }
 }
