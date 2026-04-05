@@ -18,7 +18,7 @@ public class DeletePersonCommandHandler : IRequestHandler<DeletePersonCommand, R
 
     public async Task<Result<bool>> Handle(DeletePersonCommand request, CancellationToken cancellationToken)
     {
-        var person = await _personRepository.GetByIdAsync(request.Id, cancellationToken);
+        var person = await _personRepository.GetByIdAsync(request.Id, request.UserId, cancellationToken);
         if (person is null)
         {
             throw new NotFoundException("Pessoa", request.Id);

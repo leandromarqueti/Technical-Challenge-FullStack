@@ -18,13 +18,13 @@ public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryComman
 
     public async Task<Result<bool>> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
     {
-        var category = await _categoryRepository.GetByIdAsync(request.Id, cancellationToken);
+        var category = await _categoryRepository.GetByIdAsync(request.Id, request.UserId, cancellationToken);
         if (category is null)
         {
             throw new NotFoundException("Categoria", request.Id);
         }
 
-        var hasTransactions = await _categoryRepository.HasTransactionsAsync(request.Id, cancellationToken);
+        var hasTransactions = await _categoryRepository.HasTransactionsAsync(request.Id, request.UserId, cancellationToken);
         if (hasTransactions)
         {
             return Result<bool>.Failure("Não é possível excluir uma categoria que possui transações vinculadas.");

@@ -8,23 +8,27 @@ public class Category : AggregateRoot
 {
     public string Description { get; private set; } = string.Empty;
 
+    public Guid UserId { get; private set; }
+
     public CategoryPurpose Purpose { get; private set; }
 
     public ICollection<Transaction> Transactions { get; private set; } = new List<Transaction>();
 
-    //EF Core
-    private Category() { }
+    //Para o EF Core
+    protected Category() { }
 
-    public Category(string description, CategoryPurpose purpose = CategoryPurpose.Both)
+    public Category(string description, Guid userId, CategoryPurpose purpose = CategoryPurpose.Both)
     {
         SetDescription(description);
         Purpose = purpose;
+        UserId = userId;
     }
 
-    public void Update(string description, CategoryPurpose purpose)
+    public void Update(string description, Guid userId, CategoryPurpose purpose)
     {
         SetDescription(description);
         Purpose = purpose;
+        UserId = userId;
         UpdateTimestamp();
     }
 

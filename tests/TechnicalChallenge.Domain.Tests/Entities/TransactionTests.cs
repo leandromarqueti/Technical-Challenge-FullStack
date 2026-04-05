@@ -9,6 +9,26 @@ namespace TechnicalChallenge.Domain.Tests.Entities;
 public class TransactionTests
 {
     [Fact]
+    public void Transaction_ShouldHaveAllProperties()
+    {
+        //Verifica se os dados da transação estão corretos
+        var description = "Almoço";
+        var amount = 50.0m;
+        var type = TransactionType.Expense;
+        var date = DateTime.Now;
+        var categoryId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+
+        var transaction = new Transaction(description, amount, date, type, categoryId, personId, userId);
+
+        //Validação das propriedades
+        Assert.Equal(description, transaction.Description);
+        Assert.Equal(amount, transaction.Amount);
+        Assert.Equal(type, transaction.Type);
+    }
+
+    [Fact]
     public void Constructor_WithDescriptionExceeding400Characters_ShouldThrowDomainException()
     {
         //Arrange

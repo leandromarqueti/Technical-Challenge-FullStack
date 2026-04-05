@@ -19,22 +19,22 @@ public class UpdatePersonCommandHandler : IRequestHandler<UpdatePersonCommand, R
 
     public async Task<Result<bool>> Handle(UpdatePersonCommand request, CancellationToken cancellationToken)
     {
-        var person = await _personRepository.GetByIdAsync(request.Id, cancellationToken);
+        var person = await _personRepository.GetByIdAsync(request.Id, request.UserId, cancellationToken);
         if (person is null)
         {
             throw new NotFoundException("Pessoa", request.Id);
         }
 
-        //Verifica se o novo documento já pertence a outra pessoa
+        //Verifica se o novo documento já pertence a outra pessoa para este usuário
         var cleanDocument = DocumentValidator.CleanDocument(request.Document);
-        var existingPerson = await _personRepository.GetByDocumentAsync(cleanDocument, cancellationToken);
+        var existingPerson = await _personRepository.GetByDocumentAsync(cleanDocument, request.UserId, cancellationToken);
 
         if (existingPerson is not null && existingPerson.Id != request.Id)
         {
             return Result<bool>.Failure(ResourceErrorMessages.DOCUMENT_ALREADY_EXISTS);
         }
 
-        person.Update(request.Name, request.BirthDate, request.Document);
+        person.Update(request.Name, request.BirthDate, request.Document, request.UserId);
 
         await _personRepository.UpdateAsync(person, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -13,23 +13,23 @@ public class PersonTests
         //Arrange
         var name = "Leandro Marqueti";
         var birthDate = new DateTime(1990, 1, 1);
-        var document = "123.456.789-00"; //Assuming valid in bypass or we mock it, wait, DocumentValidator is static in this project and expects math valid. I will use a mathematically valid CPF: "52998224725"
+        var document = "52998224725"; // CPF matematicamente válido
 
         //Act
-        var person = new Person(name, birthDate, "52998224725");
+        var person = new Person(name, birthDate, document, Guid.NewGuid());
 
         //Assert
         person.Should().NotBeNull();
         person.Name.Should().Be(name);
         person.BirthDate.Should().Be(birthDate);
-        person.Document.Should().Be("52998224725"); //Sanitized
+        person.Document.Should().Be("52998224725"); // Sanitizado
     }
 
     [Fact]
     public void Constructor_WithEmptyName_ShouldThrowDomainException()
     {
         //Act
-        Action action = () => new Person("", new DateTime(1990, 1, 1), "52998224725");
+        Action action = () => new Person("", new DateTime(1990, 1, 1), "52998224725", Guid.NewGuid());
 
         //Assert
         action.Should().Throw<DomainException>()
@@ -43,7 +43,7 @@ public class PersonTests
         var longName = new string('A', 201);
 
         //Act
-        Action action = () => new Person(longName, new DateTime(1990, 1, 1), "52998224725");
+        Action action = () => new Person(longName, new DateTime(1990, 1, 1), "52998224725", Guid.NewGuid());
 
         //Assert
         action.Should().Throw<DomainException>()

@@ -1,10 +1,11 @@
 using MediatR;
+using TechnicalChallenge.Application.Common.Interfaces;
 using TechnicalChallenge.Domain.Enums;
 using TechnicalChallenge.Shared.Results;
 
 namespace TechnicalChallenge.Application.UseCases.Transactions.Commands.Create;
 
-public class CreateTransactionCommand : IRequest<Result<Guid>>
+public class CreateTransactionCommand : IRequest<Result<Guid>>, IUserOwnedRequest
 {
     public string Description { get; set; } = string.Empty;
     public decimal Amount { get; set; }

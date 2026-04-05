@@ -11,7 +11,7 @@ public class DocumentValidatorTests
     [InlineData("111.444.777-35")] //CPF válido com máscara
     public void IsValid_WithValidCpf_ShouldReturnTrue(string cpf)
     {
-        //Act
+        //vê se o cpf é válido
         var result = DocumentValidator.IsValid(cpf);
 
         //Assert
@@ -26,7 +26,7 @@ public class DocumentValidatorTests
     [InlineData(null)]
     public void IsValid_WithInvalidCpf_ShouldReturnFalse(string invalidCpf)
     {
-        //Act
+        //Verifica se o CPF é inválido
         var result = DocumentValidator.IsValid(invalidCpf);
 
         //Assert
@@ -38,7 +38,7 @@ public class DocumentValidatorTests
     [InlineData("00.000.000/0001-91")] //CNPJ válido com máscara
     public void IsValid_WithValidCnpj_ShouldReturnTrue(string cnpj)
     {
-        //Act
+        //checa cnpj oficial
         var result = DocumentValidator.IsValid(cnpj);
 
         //Assert

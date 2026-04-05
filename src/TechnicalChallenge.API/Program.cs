@@ -5,14 +5,16 @@ using TechnicalChallenge.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//servicos principais
+//serviços do sistema
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
-//autenticacao jwt
+//autenticação jwt
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
-//controllers + enum como string no json
+builder.Services.AddHttpContextAccessor();
+
+//configura o json pros enums e controllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -23,7 +25,7 @@ builder.Services.AddSwaggerConfiguration();
 builder.Services.AddExceptionHandler<ExceptionHandlingMiddleware>();
 builder.Services.AddProblemDetails();
 
-//cors (restrito como em produção, permitindo a porta do Client do desafio)
+//configuração do cors para o frontend
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ProductionPolicy", policy =>
@@ -36,16 +38,15 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-//garante que o banco sqlite seja criado na primeira vez através da Infra
+//sobe o banco e as migrações na primeira vez
 app.Services.InitializeDatabase();
 
-//pipeline
+//carrega os middlewares (cultura, swagger, cors)
 app.UseMiddleware<CultureMiddleware>();
 app.UseSwaggerConfiguration();
 app.UseCors("ProductionPolicy");
 
-//HSTS e redirecionamento HTTPS ativo
-//Pode ser necessário aceitar os certificados locais do .NET caso acuse erro SSL
+//middlewares básicos do aspnet
 app.UseHsts();
 app.UseHttpsRedirection();
 

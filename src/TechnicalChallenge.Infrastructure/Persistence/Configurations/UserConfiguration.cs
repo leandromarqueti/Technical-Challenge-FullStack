@@ -20,7 +20,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(200);
 
-        //Garante emails únicos na base
+        //garante que o email seja único
         builder.HasIndex(u => u.Email)
             .IsUnique();
 

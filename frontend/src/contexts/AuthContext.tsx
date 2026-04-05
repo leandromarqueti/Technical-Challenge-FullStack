@@ -34,7 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     const { data } = await api.post('/auth/login', { email, password });
-    //A API retorna Result<T>, então o payload real está em data.data
+    //pega os dados dentro de data.data que é o padrão do Result
     const payload = data.data ?? data;
     localStorage.setItem('@App:token', payload.token);
     const userData = { name: payload.name, email: payload.email };

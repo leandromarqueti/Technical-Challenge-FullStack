@@ -12,23 +12,27 @@ public class Person : AggregateRoot
 
     public string Document { get; private set; } = string.Empty;
 
+    public bool IsMinor => BirthDate.AddYears(18) > DateTime.UtcNow;
+
+    public Guid UserId { get; private set; }
+
     public ICollection<Transaction> Transactions { get; private set; } = new List<Transaction>();
 
-    //EF Core precisa de um construtor sem parâmetros
-    private Person() { }
+    //o ef core precisa de um construtor sem parâmetros
+    protected Person() { }
 
-    public Person(string name, DateTime birthDate, string document)
+    public Person(string name, DateTime birthDate, string document, Guid userId)
     {
-        ValidateAndSet(name, birthDate, document);
+        ValidateAndSet(name, birthDate, document, userId);
     }
 
-    public void Update(string name, DateTime birthDate, string document)
+    public void Update(string name, DateTime birthDate, string document, Guid userId)
     {
-        ValidateAndSet(name, birthDate, document);
+        ValidateAndSet(name, birthDate, document, userId);
         UpdateTimestamp();
     }
 
-    private void ValidateAndSet(string name, DateTime birthDate, string document)
+    private void ValidateAndSet(string name, DateTime birthDate, string document, Guid userId)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException(ResourceErrorMessages.NAME_EMPTY);
@@ -44,8 +48,12 @@ public class Person : AggregateRoot
         if (!DocumentValidator.IsValid(cleanDoc))
             throw new DomainException(ResourceErrorMessages.DOCUMENT_INVALID);
 
+        if (userId == Guid.Empty)
+            throw new DomainException("O usuário é obrigatório.");
+
         Name = name.Trim();
         BirthDate = birthDate;
         Document = cleanDoc;
+        UserId = userId;
     }
 }

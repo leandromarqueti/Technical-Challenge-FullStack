@@ -1,10 +1,11 @@
 using MediatR;
+using TechnicalChallenge.Application.Common.Interfaces;
 using TechnicalChallenge.Domain.Enums;
 using TechnicalChallenge.Shared.Results;
 
 namespace TechnicalChallenge.Application.UseCases.Transactions.Commands.Update;
 
-public class UpdateTransactionCommand : IRequest<Result<bool>>
+public class UpdateTransactionCommand : IRequest<Result<bool>>, IUserOwnedRequest
 {
     public Guid Id { get; set; }
     public string Description { get; set; } = string.Empty;

@@ -14,7 +14,7 @@ public class CategoryTests
         var longDescription = new string('C', 401);
 
         //Act
-        Action action = () => new Category(longDescription);
+        Action action = () => new Category(longDescription, Guid.NewGuid());
 
         //Assert
         action.Should().Throw<DomainException>()

@@ -22,14 +22,14 @@ public class CreatePersonCommandHandler : IRequestHandler<CreatePersonCommand, R
     {
         var cleanDocument = DocumentValidator.CleanDocument(request.Document);
 
-        //Verifica se já existe uma pessoa com este documento
-        var documentExists = await _personRepository.ExistsByDocumentAsync(cleanDocument, cancellationToken);
+        //Verifica se já existe uma pessoa com este documento para este usuário
+        var documentExists = await _personRepository.ExistsByDocumentAsync(cleanDocument, request.UserId, cancellationToken);
         if (documentExists)
         {
             return Result<Guid>.Failure(ResourceErrorMessages.DOCUMENT_ALREADY_EXISTS);
         }
 
-        var person = new Person(request.Name, request.BirthDate, request.Document);
+        var person = new Person(request.Name, request.BirthDate, request.Document, request.UserId);
 
         await _personRepository.AddAsync(person, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

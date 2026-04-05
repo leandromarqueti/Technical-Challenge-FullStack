@@ -6,86 +6,93 @@ public static class DocumentValidator
     {
         if (string.IsNullOrWhiteSpace(document))
             return false;
+        if (string.IsNullOrEmpty(document)) return false;
 
-        var cleanDoc = CleanDocument(document);
+        //remove sujeira do documento (pontos, traços)
+        document = document.Replace(".", "").Replace("-", "").Replace("/", "");
 
-        return cleanDoc.Length switch
-        {
-            11 => IsValidCpf(cleanDoc),
-            14 => IsValidCnpj(cleanDoc),
-            _ => false
-        };
+        if (document.Length == 11) return IsCpf(document);
+        if (document.Length == 14) return IsCnpj(document);
+
+        return false;
     }
 
-    public static bool IsValidCpf(string cpf)
+    private static bool IsCpf(string document)
     {
-        var cleanCpf = CleanDocument(cpf);
+        //ignora se for tudo número igual (ex: 111.111.111-11)
+        if (new string(document[0], document.Length) == document) return false;
 
-        if (cleanCpf.Length != 11)
-            return false;
+        //calcula o primeiro dígito verificador
+        int[] multiplier1 = { 10, 9, 8, 7, 6, 5, 4, 3, 2 };
+        string tempCpf = document.Substring(0, 9);
+        int sum = 0;
 
-        //Rejeita sequências repetidas (ex: 111.111.111-11)
-        if (cleanCpf.Distinct().Count() == 1)
-            return false;
+        for (int i = 0; i < 9; i++)
+            sum += int.Parse(tempCpf[i].ToString()) * multiplier1[i];
 
-        var digits = cleanCpf.Select(c => int.Parse(c.ToString())).ToArray();
+        int remainder = sum % 11;
+        if (remainder < 2)
+            remainder = 0;
+        else
+            remainder = 11 - remainder;
 
-        //Cálculo do primeiro dígito verificador
-        var sum = 0;
-        for (var i = 0; i < 9; i++)
-            sum += digits[i] * (10 - i);
-
-        var remainder = sum % 11;
-        var firstDigit = remainder < 2 ? 0 : 11 - remainder;
-
-        if (digits[9] != firstDigit)
-            return false;
-
-        //Cálculo do segundo dígito verificador
+        string digit = remainder.ToString();
+        tempCpf = tempCpf + digit;
         sum = 0;
-        for (var i = 0; i < 10; i++)
-            sum += digits[i] * (11 - i);
+
+        //segundo dígito verificador
+        int[] multiplier2 = { 11, 10, 9, 8, 7, 6, 5, 4, 3, 2 };
+        for (int i = 0; i < 10; i++)
+            sum += int.Parse(tempCpf[i].ToString()) * multiplier2[i];
 
         remainder = sum % 11;
-        var secondDigit = remainder < 2 ? 0 : 11 - remainder;
+        if (remainder < 2)
+            remainder = 0;
+        else
+            remainder = 11 - remainder;
 
-        return digits[10] == secondDigit;
+        digit = digit + remainder.ToString();
+
+        return document.EndsWith(digit);
     }
 
-    public static bool IsValidCnpj(string cnpj)
+    private static bool IsCnpj(string document)
     {
-        var cleanCnpj = CleanDocument(cnpj);
+        //ignora se for tudo número igual
+        if (new string(document[0], document.Length) == document) return false;
 
-        if (cleanCnpj.Length != 14)
-            return false;
+        //primeiro dígito de conferência do cnpj
+        int[] multiplier1 = { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+        string tempCnpj = document.Substring(0, 12);
+        int sum = 0;
 
-        if (cleanCnpj.Distinct().Count() == 1)
-            return false;
+        for (int i = 0; i < 12; i++)
+            sum += int.Parse(tempCnpj[i].ToString()) * multiplier1[i];
 
-        var digits = cleanCnpj.Select(c => int.Parse(c.ToString())).ToArray();
+        int remainder = (sum % 11);
+        if (remainder < 2)
+            remainder = 0;
+        else
+            remainder = 11 - remainder;
 
-        //Primeiro dígito verificador
-        int[] weights1 = { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-        var sum = 0;
-        for (var i = 0; i < 12; i++)
-            sum += digits[i] * weights1[i];
-
-        var remainder = sum % 11;
-        var firstDigit = remainder < 2 ? 0 : 11 - remainder;
-
-        if (digits[12] != firstDigit)
-            return false;
-
-        //Segundo dígito verificador
-        int[] weights2 = { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+        string digit = remainder.ToString();
+        tempCnpj = tempCnpj + digit;
         sum = 0;
-        for (var i = 0; i < 13; i++)
-            sum += digits[i] * weights2[i];
 
-        remainder = sum % 11;
-        var secondDigit = remainder < 2 ? 0 : 11 - remainder;
+        //segundo dígito de conferência do cnpj
+        int[] multiplier2 = { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+        for (int i = 0; i < 13; i++)
+            sum += int.Parse(tempCnpj[i].ToString()) * multiplier2[i];
 
-        return digits[13] == secondDigit;
+        remainder = (sum % 11);
+        if (remainder < 2)
+            remainder = 0;
+        else
+            remainder = 11 - remainder;
+
+        digit = digit + remainder.ToString();
+
+        return document.EndsWith(digit);
     }
 
     public static string CleanDocument(string document)

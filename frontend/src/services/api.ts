@@ -7,11 +7,11 @@ const api = axios.create({
   },
 });
 
-//Injeta o token em toda requisiçao autenticada
+//configura o token no cabeçalho de toda requisição
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('@App:token');
   
-  //Nao envia token para rotas de autenticacao
+  //não manda o token se for pra login ou cadastro
   const isAuthRoute = config.url?.includes('/auth/login') || config.url?.includes('/auth/register');
 
   if (token && !isAuthRoute) {
@@ -23,5 +23,18 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+//trata erros de resposta (como o 401) globalmente
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response?.status === 401) {
+      console.error('[API] Erro de autenticação: login necessário.');
+      //opcional: limpa o storage se o token cair
+      //localStorage.removeItem('@App:token');
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;

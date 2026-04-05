@@ -1,5 +1,5 @@
 using MediatR;
-using TransactionEntity = TechnicalChallenge.Domain.Entities.Transaction;
+using TechnicalChallenge.Domain.Entities;
 using TechnicalChallenge.Domain.Enums;
 using TechnicalChallenge.Domain.Interfaces;
 using TechnicalChallenge.Shared.Exceptions;
@@ -28,35 +28,36 @@ public class UpdateTransactionCommandHandler : IRequestHandler<UpdateTransaction
 
     public async Task<Result<bool>> Handle(UpdateTransactionCommand request, CancellationToken cancellationToken)
     {
-        TransactionEntity? transaction = await _transactionRepository.GetByIdAsync(request.Id, cancellationToken);
-        if (transaction is null || transaction.UserId != request.UserId)
+        var transaction = await _transactionRepository.GetByIdAsync(request.Id, request.UserId, cancellationToken);
+        if (transaction is null)
         {
             throw new NotFoundException("Transação", request.Id);
         }
 
-        //Valida se a categoria existe e sua finalidade
-        var category = await _categoryRepository.GetByIdAsync(request.CategoryId, cancellationToken);
+        //vê se a categoria existe e se o tipo dela bate
+        var category = await _categoryRepository.GetByIdAsync(request.CategoryId, request.UserId, cancellationToken);
         if (category is null)
         {
             throw new NotFoundException("Categoria", request.CategoryId);
         }
 
-        //Valida se a pessoa existe
-        var person = await _personRepository.GetByIdAsync(request.PersonId, cancellationToken);
+        //vê se a pessoa realmente existe
+        var person = await _personRepository.GetByIdAsync(request.PersonId, request.UserId, cancellationToken);
         if (person is null)
         {
             throw new NotFoundException("Pessoa", request.PersonId);
         }
 
-        //Regra: Compatibilidade Categoria x Tipo Transação
-        bool isCompatible = category.Purpose == CategoryPurpose.Both || 
-                           (request.Type == TransactionType.Revenue && category.Purpose == CategoryPurpose.Revenue) ||
-                           (request.Type == TransactionType.Expense && category.Purpose == CategoryPurpose.Expense);
-
-        if (!isCompatible)
+        //menores de 18 só podem registrar despesas
+        if (person.IsMinor && request.Type == TransactionType.Revenue)
         {
-            var purposeStr = category.Purpose == CategoryPurpose.Revenue ? "receitas" : "despesas";
-            return Result<bool>.Failure($"Esta categoria é permitida apenas para {purposeStr}.");
+            return Result<bool>.Failure("Pessoas menores de 18 anos só podem ter transações do tipo 'Despesa'.");
+        }
+
+        //checa se a categoria é amigável com esse tipo de transação
+        if (category.Purpose != CategoryPurpose.Both && (int)category.Purpose != (int)request.Type)
+        {
+            return Result<bool>.Failure("A categoria selecionada não é compatível com este tipo de transação.");
         }
 
         transaction.Update(

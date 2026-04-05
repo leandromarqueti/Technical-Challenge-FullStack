@@ -7,7 +7,7 @@ import styles from './styles.module.css';
 interface Category {
   id: string;
   description: string;
-  purpose: number | string; // 0 = Revenue, 1 = Expense, 2 = Both
+  purpose: number | string; //0=Receita, 1=Despesa, 2=Ambos
 }
 
 export const Categories: React.FC = () => {
@@ -23,7 +23,7 @@ export const Categories: React.FC = () => {
   const fetchCategories = async () => {
     try {
       const response = await api.get('/categories');
-      //A API retorna o Result<T>, o dado real está em .data
+      //pega os dados brutos do Result<T>
       setCategories(response.data.data || []);
     } catch (err) {
       console.error('Erro ao buscar categorias:', err);
@@ -67,8 +67,19 @@ export const Categories: React.FC = () => {
       setIsModalOpen(false);
       fetchCategories();
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Erro ao salvar categoria.';
-      setError(msg);
+      const data = err.response?.data;
+      //tenta entender o erro que veio da api
+      const msg = data?.message || data?.Message || err.message || 'Erro inesperado ao salvar categoria.';
+      const errors = data?.errors || data?.Errors;
+      
+      if (errors) {
+        const errorList = typeof errors === 'object' 
+          ? Object.values(errors).flat().join(' ')
+          : Array.isArray(errors) ? errors.join(' ') : String(errors);
+        setError(`${msg} ${errorList}`);
+      } else {
+        setError(msg);
+      }
     } finally {
       setSubmitting(false);
     }

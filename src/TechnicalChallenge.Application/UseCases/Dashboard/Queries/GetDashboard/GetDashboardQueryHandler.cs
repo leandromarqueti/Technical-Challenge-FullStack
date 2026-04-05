@@ -36,7 +36,7 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Resul
             }).ToList(),
             TotalsByCategory = categoryTotalsByRepo.Select(c => new CategorySummaryDto
             {
-                Description = c.Name, //O repositório retorna o valor na tupla como Name por padrão
+                Description = c.Name, //o repositório devolve Name como padrão na tupla
                 TotalRevenue = c.TotalRevenue,
                 TotalExpenses = c.TotalExpenses,
                 Balance = c.TotalRevenue - c.TotalExpenses

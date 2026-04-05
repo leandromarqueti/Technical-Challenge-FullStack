@@ -19,7 +19,7 @@ public class GetAllCategoriesQueryHandler : IRequestHandler<GetAllCategoriesQuer
 
     public async Task<Result<IReadOnlyList<CategoryDto>>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
     {
-        var categories = await _categoryRepository.GetAllAsync(cancellationToken);
+        var categories = await _categoryRepository.GetAllAsync(request.UserId, cancellationToken);
         var dtos = _mapper.Map<IReadOnlyList<CategoryDto>>(categories);
 
         return Result<IReadOnlyList<CategoryDto>>.Success(dtos);

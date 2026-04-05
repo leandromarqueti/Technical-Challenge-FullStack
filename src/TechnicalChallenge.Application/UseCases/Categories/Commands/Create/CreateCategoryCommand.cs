@@ -8,4 +8,5 @@ public class CreateCategoryCommand : IRequest<Result<Guid>>
 {
     public string Description { get; set; } = string.Empty;
     public CategoryPurpose Purpose { get; set; }
+    public Guid UserId { get; set; }
 }

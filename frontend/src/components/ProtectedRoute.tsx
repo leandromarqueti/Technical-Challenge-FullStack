@@ -6,10 +6,10 @@ export const ProtectedRoute: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
-    //Redirect to the login page if not authenticated
+    //manda pro login se não tiver autenticado
     return <Navigate to="/login" replace />;
   }
 
-  //Render child routes if authenticated
+  //renderiza as rotas filhas se estiver logado
   return <Outlet />;
 };

@@ -6,11 +6,14 @@ using TechnicalChallenge.Application.UseCases.Categories.Commands.Update;
 using TechnicalChallenge.Application.UseCases.Categories.Queries.GetAll;
 using TechnicalChallenge.Application.UseCases.Categories.Queries.GetById;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace TechnicalChallenge.API.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class CategoriesController : ControllerBase
+public class CategoriesController : BaseApiController
 {
     private readonly IMediator _mediator;
 
@@ -23,7 +26,7 @@ public class CategoriesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetAllCategoriesQuery(), cancellationToken);
+        var result = await _mediator.Send(new GetAllCategoriesQuery(UserId), cancellationToken);
         return Ok(result);
     }
 
@@ -32,7 +35,7 @@ public class CategoriesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetCategoryByIdQuery(id), cancellationToken);
+        var result = await _mediator.Send(new GetCategoryByIdQuery(id, UserId), cancellationToken);
         return Ok(result);
     }
 
@@ -41,6 +44,7 @@ public class CategoriesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateCategoryCommand command, CancellationToken cancellationToken)
     {
+        command.UserId = UserId;
         var result = await _mediator.Send(command, cancellationToken);
 
         if (!result.IsSuccess)
@@ -56,6 +60,7 @@ public class CategoriesController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCategoryCommand command, CancellationToken cancellationToken)
     {
         command.Id = id;
+        command.UserId = UserId;
         var result = await _mediator.Send(command, cancellationToken);
 
         if (!result.IsSuccess)
@@ -70,7 +75,7 @@ public class CategoriesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new DeleteCategoryCommand(id), cancellationToken);
+        var result = await _mediator.Send(new DeleteCategoryCommand(id, UserId), cancellationToken);
 
         if (!result.IsSuccess)
             return BadRequest(result);

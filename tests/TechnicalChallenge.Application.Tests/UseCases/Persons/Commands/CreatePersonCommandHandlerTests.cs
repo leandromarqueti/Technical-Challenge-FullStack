@@ -28,10 +28,11 @@ public class CreatePersonCommandHandlerTests
         {
             Name = "John Doe",
             BirthDate = new DateTime(1990, 1, 1),
-            Document = "11144477735" //CPF Válido
+            Document = "11144477735", //CPF Válido
+            UserId = Guid.NewGuid()
         };
 
-        _personRepositoryMock.Setup(r => r.ExistsByDocumentAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        _personRepositoryMock.Setup(r => r.ExistsByDocumentAsync(It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         _personRepositoryMock.Setup(r => r.AddAsync(It.IsAny<Person>(), It.IsAny<CancellationToken>()))
@@ -61,11 +62,12 @@ public class CreatePersonCommandHandlerTests
         {
             Name = "Jane Doe",
             BirthDate = new DateTime(1995, 5, 5),
-            Document = "11144477735" 
+            Document = "11144477735",
+            UserId = Guid.NewGuid()
         };
 
-        //Simula que o documento já existe no banco
-        _personRepositoryMock.Setup(r => r.ExistsByDocumentAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        //Simula que o documento já existe no banco para este usuário
+        _personRepositoryMock.Setup(r => r.ExistsByDocumentAsync(It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         //Act

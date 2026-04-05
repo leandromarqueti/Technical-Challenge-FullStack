@@ -14,6 +14,12 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
         _appContext = context;
     }
 
+    public async Task<Transaction?> GetByIdAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await _appContext.Transactions
+            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId, cancellationToken);
+    }
+
     public async Task<Transaction?> GetByIdWithRelationsAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
     {
         return await _appContext.Transactions
@@ -42,7 +48,7 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
             .Where(t => t.UserId == userId)
             .AsQueryable();
 
-        //Aplicar filtros
+        //filtros iniciais
         if (!string.IsNullOrWhiteSpace(description))
         {
             query = query.Where(t => t.Description.ToLower().Contains(description.ToLower()));
@@ -73,13 +79,13 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
             query = query.Where(t => t.Type == type.Value);
         }
 
-        //Total antes de paginar
+        //conta tudo antes de paginar
         var totalCount = await query.CountAsync(cancellationToken);
 
-        //Ordenação
+        //ordem dos dados
         query = ApplySorting(query, sortBy, sortDescending);
 
-        //Paginação
+        //corte da página
         var items = await query
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)

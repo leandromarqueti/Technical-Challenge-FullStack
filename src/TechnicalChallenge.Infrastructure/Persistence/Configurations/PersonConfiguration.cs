@@ -23,7 +23,7 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
             .IsRequired()
             .HasMaxLength(14);
 
-        //Índice único no documento para evitar duplicidade
+        //Índice único para o documento não repetir
         builder.HasIndex(p => p.Document)
             .IsUnique();
 

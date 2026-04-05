@@ -1,16 +1,15 @@
 using Xunit;
+using TechnicalChallenge.Domain.Common;
 
 namespace TechnicalChallenge.Domain.Tests.Common;
 
-///<summary>
-///Placeholder test file to ensure the test project structure is correct.
-///</summary>
+//teste base de entidade pra conferir a estrutura
 public class EntityTests
 {
     [Fact]
     public void Entity_ShouldHaveUniqueId()
     {
-        //This is a placeholder test demonstrating the test structure
+        //vê se o id é gerado sozinho
         var id = Guid.NewGuid();
         Assert.NotEqual(Guid.Empty, id);
     }

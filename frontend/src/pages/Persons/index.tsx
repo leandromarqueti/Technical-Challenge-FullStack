@@ -17,7 +17,7 @@ export const Persons: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
   
-  //Form states
+  //estado do form
   const [form, setForm] = useState({
     name: '',
     birthDate: '',
@@ -74,32 +74,28 @@ export const Persons: React.FC = () => {
       } else {
         await api.post('/persons', form);
       }
+      
       setIsModalOpen(false);
+      setEditingPerson(null);
       fetchPersons();
     } catch (err: any) {
       const data = err.response?.data;
-      const msg = data?.message || data?.Message || 'Erro ao salvar pessoa. Verifique o documento.';
-      const errors = data?.errors || data?.Errors;
-      
-      if (errors) {
-        const errorList = Object.values(errors).flat().join(' ');
-        setError(`${msg} ${errorList}`);
-      } else {
-        setError(msg);
-      }
+      //tenta entender o erro retornado pela api
+      const msg = data?.message || data?.Message || err.message || 'Erro inesperado ao salvar pessoa.';
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Tem certeza que deseja excluir esta pessoa?')) return;
-
-    try {
-      await api.delete(`/persons/${id}`);
-      fetchPersons();
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao excluir pessoa.');
+    if (window.confirm('Tem certeza que deseja excluir esta pessoa?')) {
+      try {
+        await api.delete(`/persons/${id}`);
+        fetchPersons();
+      } catch (err) {
+        console.error('Erro ao excluir pessoa:', err);
+      }
     }
   };
 

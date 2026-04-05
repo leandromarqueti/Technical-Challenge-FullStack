@@ -19,7 +19,7 @@ public class GetAllPersonsQueryHandler : IRequestHandler<GetAllPersonsQuery, Res
 
     public async Task<Result<IReadOnlyList<PersonDto>>> Handle(GetAllPersonsQuery request, CancellationToken cancellationToken)
     {
-        var persons = await _personRepository.GetAllAsync(cancellationToken);
+        var persons = await _personRepository.GetAllAsync(request.UserId, cancellationToken);
         var dtos = _mapper.Map<IReadOnlyList<PersonDto>>(persons);
 
         return Result<IReadOnlyList<PersonDto>>.Success(dtos);

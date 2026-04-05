@@ -20,8 +20,8 @@ public class Transaction : AggregateRoot
     public Person? Person { get; private set; }
     public Guid UserId { get; private set; }
 
-    //EF Core
-    private Transaction() { }
+    //necessário pro ef core
+    protected Transaction() { }
 
     public Transaction(
         string description,
