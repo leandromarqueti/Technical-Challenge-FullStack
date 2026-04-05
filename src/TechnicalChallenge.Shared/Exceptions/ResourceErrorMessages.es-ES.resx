@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="DOCUMENT_INVALID" xml:space="preserve">
+    <value>El documento proporcionado (CPF/CNPJ) no es válido.</value>
+  </data>
+  <data name="NAME_EMPTY" xml:space="preserve">
+    <value>El nombre no puede estar vacío.</value>
+  </data>
+  <data name="PERSON_NOT_FOUND" xml:space="preserve">
+    <value>Persona no encontrada.</value>
+  </data>
+  <data name="CATEGORY_NOT_FOUND" xml:space="preserve">
+    <value>Categoría no encontrada.</value>
+  </data>
+  <data name="TRANSACTION_NOT_FOUND" xml:space="preserve">
+    <value>Transacción no encontrada.</value>
+  </data>
+  <data name="DOCUMENT_ALREADY_EXISTS" xml:space="preserve">
+    <value>Ya existe una persona registrada con este documento.</value>
+  </data>
+  <data name="CANNOT_DELETE_CATEGORY_WITH_TRANSACTIONS" xml:space="preserve">
+    <value>No se puede eliminar una categoría que tiene transacciones asociadas.</value>
+  </data>
+  <data name="CANNOT_DELETE_PERSON_WITH_TRANSACTIONS" xml:space="preserve">
+    <value>No se puede eliminar una persona que tiene transacciones asociadas.</value>
+  </data>
+  <data name="DB_ERROR" xml:space="preserve">
+    <value>Error de base de datos. Consulte el registro para más detalles.</value>
+  </data>
+  <data name="SUCCESS" xml:space="preserve">
+    <value>Operación completada con éxito.</value>
+  </data>
+</root>
