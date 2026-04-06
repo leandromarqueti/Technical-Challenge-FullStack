@@ -4,12 +4,8 @@ using TechnicalChallenge.Domain.Interfaces;
 
 namespace TechnicalChallenge.Infrastructure.Persistence.Repositories;
 
-public class CategoryRepository : Repository<Category>, ICategoryRepository
+public class CategoryRepository(AppDbContext context) : Repository<Category>(context), ICategoryRepository
 {
-    public CategoryRepository(AppDbContext context) : base(context)
-    {
-    }
-
     public async Task<Category?> GetByIdAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
     {
         return await _dbSet

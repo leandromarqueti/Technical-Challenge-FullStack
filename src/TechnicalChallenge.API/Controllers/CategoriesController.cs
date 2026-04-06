@@ -5,28 +5,18 @@ using TechnicalChallenge.Application.UseCases.Categories.Commands.Delete;
 using TechnicalChallenge.Application.UseCases.Categories.Commands.Update;
 using TechnicalChallenge.Application.UseCases.Categories.Queries.GetAll;
 using TechnicalChallenge.Application.UseCases.Categories.Queries.GetById;
-
 using Microsoft.AspNetCore.Authorization;
 
 namespace TechnicalChallenge.API.Controllers;
 
 [Authorize]
-[ApiController]
-[Route("api/[controller]")]
-public class CategoriesController : BaseApiController
+public class CategoriesController(IMediator mediator) : BaseApiController
 {
-    private readonly IMediator _mediator;
-
-    public CategoriesController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetAllCategoriesQuery(UserId), cancellationToken);
+        var result = await mediator.Send(new GetAllCategoriesQuery(UserId), cancellationToken);
         return Ok(result);
     }
 
@@ -35,7 +25,7 @@ public class CategoriesController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetCategoryByIdQuery(id, UserId), cancellationToken);
+        var result = await mediator.Send(new GetCategoryByIdQuery(id, UserId), cancellationToken);
         return Ok(result);
     }
 
@@ -45,7 +35,7 @@ public class CategoriesController : BaseApiController
     public async Task<IActionResult> Create([FromBody] CreateCategoryCommand command, CancellationToken cancellationToken)
     {
         command.UserId = UserId;
-        var result = await _mediator.Send(command, cancellationToken);
+        var result = await mediator.Send(command, cancellationToken);
 
         if (!result.IsSuccess)
             return BadRequest(result);
@@ -61,7 +51,7 @@ public class CategoriesController : BaseApiController
     {
         command.Id = id;
         command.UserId = UserId;
-        var result = await _mediator.Send(command, cancellationToken);
+        var result = await mediator.Send(command, cancellationToken);
 
         if (!result.IsSuccess)
             return BadRequest(result);
@@ -75,7 +65,7 @@ public class CategoriesController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new DeleteCategoryCommand(id, UserId), cancellationToken);
+        var result = await mediator.Send(new DeleteCategoryCommand(id, UserId), cancellationToken);
 
         if (!result.IsSuccess)
             return BadRequest(result);

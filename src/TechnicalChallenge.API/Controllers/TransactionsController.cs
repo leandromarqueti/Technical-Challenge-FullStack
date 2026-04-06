@@ -6,21 +6,13 @@ using TechnicalChallenge.Application.UseCases.Transactions.Commands.Update;
 using TechnicalChallenge.Application.UseCases.Transactions.Queries.GetById;
 using TechnicalChallenge.Application.UseCases.Transactions.Queries.GetFiltered;
 using TechnicalChallenge.Domain.Enums;
-
 using Microsoft.AspNetCore.Authorization;
 
 namespace TechnicalChallenge.API.Controllers;
 
 [Authorize]
-public class TransactionsController : BaseApiController
+public class TransactionsController(IMediator mediator) : BaseApiController
 {
-    private readonly IMediator _mediator;
-
-    public TransactionsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFiltered(
@@ -51,7 +43,7 @@ public class TransactionsController : BaseApiController
             UserId = UserId
         };
 
-        var result = await _mediator.Send(query, cancellationToken);
+        var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
     }
 
@@ -60,7 +52,7 @@ public class TransactionsController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetTransactionByIdQuery(id, UserId), cancellationToken);
+        var result = await mediator.Send(new GetTransactionByIdQuery(id, UserId), cancellationToken);
         return Ok(result);
     }
 
@@ -70,7 +62,7 @@ public class TransactionsController : BaseApiController
     public async Task<IActionResult> Create([FromBody] CreateTransactionCommand command, CancellationToken cancellationToken)
     {
         command.UserId = UserId;
-        var result = await _mediator.Send(command, cancellationToken);
+        var result = await mediator.Send(command, cancellationToken);
 
         if (!result.IsSuccess)
             return BadRequest(result);
@@ -86,7 +78,7 @@ public class TransactionsController : BaseApiController
     {
         command.Id = id;
         command.UserId = UserId;
-        var result = await _mediator.Send(command, cancellationToken);
+        var result = await mediator.Send(command, cancellationToken);
 
         if (!result.IsSuccess)
             return BadRequest(result);
@@ -99,7 +91,7 @@ public class TransactionsController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new DeleteTransactionCommand(id, UserId), cancellationToken);
+        var result = await mediator.Send(new DeleteTransactionCommand(id, UserId), cancellationToken);
 
         if (!result.IsSuccess)
             return BadRequest(result);

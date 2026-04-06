@@ -40,7 +40,6 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        //carrega as configurações de todas as classes do assembly
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }

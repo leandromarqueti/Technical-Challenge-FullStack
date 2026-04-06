@@ -7,23 +7,15 @@ using TechnicalChallenge.Shared.Results;
 
 namespace TechnicalChallenge.Application.UseCases.Transactions.Queries.GetFiltered;
 
-public class GetFilteredTransactionsQueryHandler
-    : IRequestHandler<GetFilteredTransactionsQuery, Result<PagedResult<TransactionDto>>>
+public class GetFilteredTransactionsQueryHandler(
+    ITransactionRepository transactionRepository, 
+    IMapper mapper) : IRequestHandler<GetFilteredTransactionsQuery, Result<PagedResult<TransactionDto>>>
 {
-    private readonly ITransactionRepository _transactionRepository;
-    private readonly IMapper _mapper;
-
-    public GetFilteredTransactionsQueryHandler(ITransactionRepository transactionRepository, IMapper mapper)
-    {
-        _transactionRepository = transactionRepository;
-        _mapper = mapper;
-    }
-
     public async Task<Result<PagedResult<TransactionDto>>> Handle(
         GetFilteredTransactionsQuery request,
         CancellationToken cancellationToken)
     {
-        var (items, totalCount) = await _transactionRepository.GetFilteredAsync(
+        var (items, totalCount) = await transactionRepository.GetFilteredAsync(
             request.Description,
             request.StartDate,
             request.EndDate,
@@ -37,14 +29,12 @@ public class GetFilteredTransactionsQueryHandler
             request.SortDescending,
             cancellationToken);
 
-        var dtos = _mapper.Map<IReadOnlyList<TransactionDto>>(items);
+        var dtos = mapper.Map<IReadOnlyList<TransactionDto>>(items);
 
-        var pagedResult = new PagedResult<TransactionDto>(
+        return Result<PagedResult<TransactionDto>>.Success(new PagedResult<TransactionDto>(
             dtos,
             totalCount,
             request.PageNumber,
-            request.PageSize);
-
-        return Result<PagedResult<TransactionDto>>.Success(pagedResult);
+            request.PageSize));
     }
 }

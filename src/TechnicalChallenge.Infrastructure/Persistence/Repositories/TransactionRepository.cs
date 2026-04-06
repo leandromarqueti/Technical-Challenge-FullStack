@@ -5,24 +5,17 @@ using TechnicalChallenge.Domain.Interfaces;
 
 namespace TechnicalChallenge.Infrastructure.Persistence.Repositories;
 
-public class TransactionRepository : Repository<Transaction>, ITransactionRepository
+public class TransactionRepository(AppDbContext context) : Repository<Transaction>(context), ITransactionRepository
 {
-    private readonly AppDbContext _appContext;
-
-    public TransactionRepository(AppDbContext context) : base(context)
-    {
-        _appContext = context;
-    }
-
     public async Task<Transaction?> GetByIdAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
     {
-        return await _appContext.Transactions
+        return await context.Transactions
             .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId, cancellationToken);
     }
 
     public async Task<Transaction?> GetByIdWithRelationsAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
     {
-        return await _appContext.Transactions
+        return await context.Transactions
             .Include(t => t.Category)
             .Include(t => t.Person)
             .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId, cancellationToken);
@@ -42,13 +35,12 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
         bool sortDescending,
         CancellationToken cancellationToken = default)
     {
-        var query = _appContext.Transactions
+        var query = context.Transactions
             .Include(t => t.Category)
             .Include(t => t.Person)
             .Where(t => t.UserId == userId)
             .AsQueryable();
 
-        //filtros iniciais
         if (!string.IsNullOrWhiteSpace(description))
         {
             query = query.Where(t => t.Description.ToLower().Contains(description.ToLower()));
@@ -79,13 +71,10 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
             query = query.Where(t => t.Type == type.Value);
         }
 
-        //conta tudo antes de paginar
         var totalCount = await query.CountAsync(cancellationToken);
 
-        //ordem dos dados
         query = ApplySorting(query, sortBy, sortDescending);
 
-        //corte da página
         var items = await query
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
@@ -97,7 +86,7 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
 
     public async Task<decimal> GetTotalRevenueAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var total = await _appContext.Transactions
+        var total = await context.Transactions
             .Where(t => t.UserId == userId && t.Type == TransactionType.Revenue)
             .Select(t => (double)t.Amount)
             .SumAsync(cancellationToken);
@@ -107,7 +96,7 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
 
     public async Task<decimal> GetTotalExpensesAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var total = await _appContext.Transactions
+        var total = await context.Transactions
             .Where(t => t.UserId == userId && t.Type == TransactionType.Expense)
             .Select(t => (double)t.Amount)
             .SumAsync(cancellationToken);
@@ -117,7 +106,7 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
 
     public async Task<IEnumerable<(string Name, decimal TotalRevenue, decimal TotalExpenses)>> GetTotalsByPersonAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var totals = await _appContext.Transactions
+        var totals = await context.Transactions
             .Include(t => t.Person)
             .Where(t => t.UserId == userId)
             .GroupBy(t => new { t.PersonId, t.Person!.Name })
@@ -134,7 +123,7 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
 
     public async Task<IEnumerable<(string Name, decimal TotalRevenue, decimal TotalExpenses)>> GetTotalsByCategoryAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var totals = await _appContext.Transactions
+        var totals = await context.Transactions
             .Include(t => t.Category)
             .Where(t => t.UserId == userId)
             .GroupBy(t => new { t.CategoryId, t.Category!.Description })
