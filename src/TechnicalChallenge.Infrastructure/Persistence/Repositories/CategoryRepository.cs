@@ -15,6 +15,7 @@ public class CategoryRepository(AppDbContext context) : Repository<Category>(con
     public async Task<IReadOnlyList<Category>> GetAllAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await _dbSet
+            .AsNoTracking()
             .Where(c => c.UserId == userId)
             .ToListAsync(cancellationToken);
     }
@@ -22,6 +23,7 @@ public class CategoryRepository(AppDbContext context) : Repository<Category>(con
     public async Task<Category?> GetByDescriptionAsync(string description, Guid userId, CancellationToken cancellationToken = default)
     {
         return await _dbSet
+            .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Description.ToLower() == description.ToLower() && c.UserId == userId, cancellationToken);
     }
 

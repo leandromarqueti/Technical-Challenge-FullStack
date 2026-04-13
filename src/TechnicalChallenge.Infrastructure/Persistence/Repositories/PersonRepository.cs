@@ -15,6 +15,7 @@ public class PersonRepository(AppDbContext context) : Repository<Person>(context
     public async Task<IReadOnlyList<Person>> GetAllAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await _dbSet
+            .AsNoTracking()
             .Where(p => p.UserId == userId)
             .ToListAsync(cancellationToken);
     }
@@ -22,6 +23,7 @@ public class PersonRepository(AppDbContext context) : Repository<Person>(context
     public async Task<Person?> GetByDocumentAsync(string document, Guid userId, CancellationToken cancellationToken = default)
     {
         return await _dbSet
+            .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Document == document && p.UserId == userId, cancellationToken);
     }
 
